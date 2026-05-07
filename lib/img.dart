@@ -461,11 +461,17 @@ class McuImage {
   /// The raw firmware binary data.
   final List<int> content;
 
+  static const Set<int> _hashTlvTypes = {
+    0x10, // SHA256
+    0x11, // SHA384
+    0x12, // SHA512
+  };
+
   static List<int> _getHash(McuImageTLV tlv) {
     for (final entry in tlv.entries) {
-      if (entry.type == 0x10) return entry.value;
+      if (_hashTlvTypes.contains(entry.type)) return entry.value;
     }
-    throw const FormatException("image doesn't contain hash");
+    throw const FormatException("image doesn't contain a supported hash");
   }
 
   McuImage(this.header, this.tlv, this.content, {this.protectedTlv})
